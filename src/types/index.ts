@@ -31,6 +31,8 @@ export interface Article {
   updatedAt: string
   /** 字数（自动计算） */
   wordCount: number
+  /** 预计阅读时间（分钟，自动计算） */
+  readTime?: number
 }
 
 // ---- 个人信息 -----------------------------------------------
@@ -83,8 +85,63 @@ export interface Profile {
   skills: Skill[]
   /** 经历列表 */
   experiences: Experience[]
+  /** 项目经历列表 */
+  projects: Project[]
   /** 社交链接 */
   links: SocialLink[]
+}
+
+// ---- 项目经历 -----------------------------------------------
+
+export interface Project {
+  /** 项目ID */
+  id: string
+  /** 项目名称 */
+  title: string
+  /** 项目描述 */
+  description: string
+  /** 项目角色 */
+  role: string
+  /** 使用的技术栈 */
+  technologies: string[]
+  /** 项目链接（GitHub、在线演示等） */
+  links?: {
+    github?: string
+    demo?: string
+    other?: string
+  }
+  /** 项目图片 */
+  image?: string
+  /** 开始时间 */
+  startDate: string
+  /** 结束时间 */
+  endDate?: string
+  /** 是否置顶展示 */
+  featured: boolean
+}
+
+// ---- AI 模块配置 -------------------------------------------
+
+export interface AIModule {
+  /** 模块ID */
+  id: string
+  /** 模块名称 */
+  name: string
+  /** 模块描述 */
+  description: string
+  /** 提示词模板 */
+  promptTemplate: string
+  /** 是否启用 */
+  enabled: boolean
+}
+
+export interface AIConfig {
+  /** AI 模块列表 */
+  modules: AIModule[]
+  /** 默认模型 */
+  defaultModel: string
+  /** API Key（本地演示使用模拟数据） */
+  apiKey?: string
 }
 
 // ---- 博客配置 -----------------------------------------------

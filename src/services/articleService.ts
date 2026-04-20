@@ -1,7 +1,7 @@
 import type { Article, ArticleFilter, PaginatedResult } from '@/types'
 import { getItem, setItem } from './storageUtils'
 import { generateId } from '@/utils/id'
-import { toISO } from '@/utils/date'
+import { toISO, readingTime } from '@/utils/date'
 import { countWords, extractSummary, slugify } from '@/utils/markdown'
 
 const KEY = 'blog_articles'
@@ -62,7 +62,7 @@ export const articleService = {
   },
 
   /** 新建文章 */
-  create(data: Omit<Article, 'id' | 'createdAt' | 'updatedAt' | 'wordCount' | 'slug'>): Article {
+  create(data: Omit<Article, 'id' | 'createdAt' | 'updatedAt' | 'wordCount' | 'slug' | 'readTime'>): Article {
     const now = toISO()
     const wordCount = countWords(data.content)
     const summary = data.summary || extractSummary(data.content)
@@ -73,6 +73,7 @@ export const articleService = {
       slug,
       summary,
       wordCount,
+      readTime: readingTime(wordCount),
       createdAt: now,
       updatedAt: now,
     }
@@ -88,11 +89,13 @@ export const articleService = {
     const idx = list.findIndex((a) => a.id === id)
     if (idx === -1) return null
 
+    const wordCount = countWords(data.content ?? list[idx].content)
     const updated: Article = {
       ...list[idx],
       ...data,
       updatedAt: toISO(),
-      wordCount: countWords(data.content ?? list[idx].content),
+      wordCount,
+      readTime: readingTime(wordCount),
     }
     if (data.content && !data.summary) {
       updated.summary = extractSummary(data.content)

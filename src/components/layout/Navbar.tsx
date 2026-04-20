@@ -12,6 +12,8 @@ export default function Navbar() {
   const navLinks = [
     { to: '/', label: '首页' },
     { to: '/articles', label: '文章' },
+    { to: '/projects', label: '项目' },
+    { to: '/ai', label: 'AI' },
     { to: '/about', label: '关于' },
   ]
 

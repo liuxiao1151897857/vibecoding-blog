@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Github, Mail, ExternalLink, Briefcase, GraduationCap } from 'lucide-react'
+import { GitBranch, Mail, ExternalLink, Briefcase, GraduationCap, FolderGit2, Sparkles, Download } from 'lucide-react'
 import { profileStorage } from '../lib/storage'
 import type { Profile } from '../types'
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Github,
+  Github: GitBranch,
+  GitBranch,
   Mail,
+  Sparkles,
 }
 
 function SocialIcon({ name }: { name: string }) {
@@ -29,6 +31,12 @@ export default function About() {
     acc[s.category].push(s)
     return acc
   }, {})
+
+  // 项目经历按 featured 排序
+  const sortedProjects = [...profile.projects].sort((a, b) => {
+    if (a.featured !== b.featured) return a.featured ? -1 : 1
+    return b.startDate.localeCompare(a.startDate)
+  })
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 space-y-12">
@@ -118,7 +126,10 @@ export default function About() {
       {/* Experience Timeline */}
       {profile.experiences.length > 0 && (
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">经历</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <Briefcase size={24} />
+            工作与教育经历
+          </h2>
           <div className="space-y-4">
             {profile.experiences.map((exp, i) => (
               <div key={i} className="flex gap-4">
@@ -145,6 +156,153 @@ export default function About() {
           </div>
         </section>
       )}
+
+      {/* Projects Section - 新增项目经历模块 */}
+      {sortedProjects.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <FolderGit2 size={24} />
+              项目经历
+            </h2>
+            <a
+              href="/projects"
+              className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+            >
+              查看全部项目 <ExternalLink size={14} />
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {sortedProjects.slice(0, 4).map((project) => (
+              <div key={project.id} className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 hover:shadow-xl transition-all group">
+                {project.image && (
+                  <div className="h-48 overflow-hidden">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white line-clamp-2">{project.title}</h3>
+                    {project.featured && (
+                      <span className="px-2.5 py-1 text-[10px] font-medium bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 rounded-full">精选</span>
+                    )}
+                  </div>
+
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
+                    {project.description}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {project.technologies.slice(0, 4).map((tech, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-block px-2 py-0.5 text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      {project.startDate} {project.endDate ? `— ${project.endDate}` : '至今'}
+                    </div>
+
+                    <div className="flex gap-3">
+                      {project.links?.github && (
+                        <a href={project.links.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                          <GitBranch size={16} />
+                        </a>
+                      )}
+                      {project.links?.demo && (
+                        <a href={project.links.demo} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                          <ExternalLink size={16} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* AI Resume Generator - 一键生成简历 */}
+      <section className="bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950 dark:to-violet-950 rounded-3xl p-8 border border-indigo-100 dark:border-indigo-900">
+        <div className="flex items-start gap-6">
+          <div className="flex-shrink-0 w-14 h-14 bg-white dark:bg-gray-900 rounded-2xl flex items-center justify-center shadow-sm">
+            <Sparkles size={28} className="text-indigo-600 dark:text-indigo-400" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+              AI 智能简历生成
+              <span className="text-xs px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full font-medium">NEW</span>
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              使用 AI 帮你一键生成专业简历，支持个性化定制、ATS 优化建议。基于您的项目经历和技能自动生成。
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href="/ai"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-medium transition-all active:scale-[0.985]"
+              >
+                <Sparkles size={18} />
+                进入 AI 工作台
+              </a>
+
+              <button
+                onClick={() => {
+                  const resumeContent = `
+# ${profile.name} 的简历
+
+**${profile.bio}**
+
+## 技能专长
+${profile.skills.map(s => `- ${s.name} (${s.level}%)`).join('\n')}
+
+## 项目经历
+${profile.projects.map(p => `
+### ${p.title}
+**${p.role}** | ${p.startDate} - ${p.endDate || '至今'}
+
+${p.description}
+
+**技术栈**：${p.technologies.join(' · ')}
+`).join('\n')}
+
+## 联系方式
+${profile.links.map(l => `- ${l.platform}: ${l.url}`).join('\n')}
+                  `.trim()
+
+                  const blob = new Blob([resumeContent], { type: 'text/markdown' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `${profile.name}-resume.md`
+                  document.body.appendChild(a)
+                  a.click()
+                  document.body.removeChild(a)
+                  URL.revokeObjectURL(url)
+
+                  alert('简历 Markdown 已下载！您也可以访问 /ai 页面使用更强大的 AI 生成器。')
+                }}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-800 rounded-2xl font-medium transition-all"
+              >
+                <Download size={18} />
+                一键下载简历 (MD)
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Contact */}
       <section>

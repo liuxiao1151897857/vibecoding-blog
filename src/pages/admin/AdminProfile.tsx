@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { Plus, Trash2, Save, ChevronDown, ChevronUp } from 'lucide-react'
 import { profileStorage } from '../../lib/storage'
-import type { Profile, Skill, Experience, SocialLink } from '../../types'
+import type { Profile, Skill, Experience, SocialLink, Project } from '../../types'
 
 export default function AdminProfile() {
   const [profile, setProfile] = useState<Profile>(() => profileStorage.get())
@@ -68,6 +68,31 @@ export default function AdminProfile() {
   }
   const removeLink = (index: number) => {
     update({ links: profile.links.filter((_, i) => i !== index) })
+  }
+
+  // 项目经历操作
+  const addProject = () => {
+    const newProject: Project = {
+      id: 'proj_' + Date.now(),
+      title: '',
+      description: '',
+      role: '',
+      technologies: [],
+      startDate: '',
+      featured: false,
+    }
+    update({ projects: [...(profile.projects || []), newProject] })
+  }
+
+  const updateProject = (index: number, data: Partial<Project>) => {
+    const projects = [...(profile.projects || [])]
+    projects[index] = { ...projects[index], ...data }
+    update({ projects })
+  }
+
+  const removeProject = (index: number) => {
+    const projects = (profile.projects || []).filter((_, i) => i !== index)
+    update({ projects })
   }
 
   const SectionHeader = ({ id, label }: { id: string; label: string }) => (
@@ -144,6 +169,130 @@ export default function AdminProfile() {
                   className="w-full px-3 py-2 text-sm font-mono border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
                 />
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* 项目经历 - 放在技能之后 */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <SectionHeader id="projects" label={`项目经历（${(profile.projects || []).length}）`} />
+          {activeSection === 'projects' && (
+            <div className="px-5 pb-5 border-t border-gray-100 dark:border-gray-700 pt-4 space-y-4">
+              {(profile.projects || []).map((project, i) => (
+                <div key={i} className="p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <input
+                      type="text"
+                      value={project.title}
+                      onChange={e => updateProject(i, { title: e.target.value })}
+                      placeholder="项目名称"
+                      className="flex-1 px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeProject(i)}
+                      className="p-2 text-gray-400 hover:text-red-500 transition-colors ml-3"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1.5">角色/职责</label>
+                    <input
+                      type="text"
+                      value={project.role}
+                      onChange={e => updateProject(i, { role: e.target.value })}
+                      placeholder="如：独立开发者 / 全栈负责人"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1.5">开始时间</label>
+                      <input
+                        type="text"
+                        value={project.startDate}
+                        onChange={e => updateProject(i, { startDate: e.target.value })}
+                        placeholder="2024-01"
+                        className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1.5">结束时间（留空为至今）</label>
+                      <input
+                        type="text"
+                        value={project.endDate || ''}
+                        onChange={e => updateProject(i, { endDate: e.target.value || undefined })}
+                        placeholder="至今"
+                        className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1.5">项目描述</label>
+                    <textarea
+                      value={project.description}
+                      onChange={e => updateProject(i, { description: e.target.value })}
+                      rows={3}
+                      placeholder="项目背景、你的贡献、成果..."
+                      className="w-full px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1.5">技术栈（用逗号分隔）</label>
+                    <input
+                      type="text"
+                      value={(project.technologies || []).join(', ')}
+                      onChange={e => updateProject(i, { technologies: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
+                      placeholder="React, TypeScript, Tailwind, OpenAI"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={!!project.featured}
+                        onChange={e => updateProject(i, { featured: e.target.checked })}
+                        className="w-4 h-4 accent-indigo-600"
+                      />
+                      精选项目
+                    </label>
+
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-400 mb-1">演示链接（GitHub/Demo）</label>
+                      <input
+                        type="url"
+                        value={project.links?.github || project.links?.demo || ''}
+                        onChange={e => {
+                          const val = e.target.value
+                          updateProject(i, {
+                            links: {
+                              ...(project.links || {}),
+                              [val.includes('github.com') ? 'github' : 'demo']: val
+                            }
+                          })
+                        }}
+                        placeholder="https://github.com/..."
+                        className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={addProject}
+                className="flex items-center gap-2 px-5 py-3 text-sm border border-dashed border-gray-300 dark:border-gray-600 rounded-2xl text-gray-500 dark:text-gray-400 hover:border-indigo-400 hover:text-indigo-600 w-full justify-center transition-colors"
+              >
+                <Plus size={18} /> 添加新项目
+              </button>
             </div>
           )}
         </div>
@@ -281,6 +430,130 @@ export default function AdminProfile() {
                 className="flex items-center gap-1.5 px-3 py-2 text-sm border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors w-full justify-center"
               >
                 <Plus size={14} /> 添加经历
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* 项目经历 - 新增 */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <SectionHeader id="projects" label={`项目经历（${(profile.projects || []).length}）`} />
+          {activeSection === 'projects' && (
+            <div className="px-5 pb-5 border-t border-gray-100 dark:border-gray-700 pt-4 space-y-4">
+              {(profile.projects || []).map((project, i) => (
+                <div key={i} className="p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <input
+                      type="text"
+                      value={project.title}
+                      onChange={e => updateProject(i, { title: e.target.value })}
+                      placeholder="项目名称"
+                      className="flex-1 px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeProject(i)}
+                      className="p-2 text-gray-400 hover:text-red-500 transition-colors ml-3"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1.5">角色/职责</label>
+                    <input
+                      type="text"
+                      value={project.role}
+                      onChange={e => updateProject(i, { role: e.target.value })}
+                      placeholder="如：独立开发者 / 全栈负责人"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1.5">开始时间</label>
+                      <input
+                        type="text"
+                        value={project.startDate}
+                        onChange={e => updateProject(i, { startDate: e.target.value })}
+                        placeholder="2024-01"
+                        className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1.5">结束时间（留空为至今）</label>
+                      <input
+                        type="text"
+                        value={project.endDate || ''}
+                        onChange={e => updateProject(i, { endDate: e.target.value || undefined })}
+                        placeholder="至今"
+                        className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1.5">项目描述</label>
+                    <textarea
+                      value={project.description}
+                      onChange={e => updateProject(i, { description: e.target.value })}
+                      rows={3}
+                      placeholder="项目背景、你的贡献、成果..."
+                      className="w-full px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1.5">技术栈（用逗号分隔）</label>
+                    <input
+                      type="text"
+                      value={project.technologies.join(', ')}
+                      onChange={e => updateProject(i, { technologies: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
+                      placeholder="React, TypeScript, Tailwind, OpenAI"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={project.featured}
+                        onChange={e => updateProject(i, { featured: e.target.checked })}
+                        className="w-4 h-4 accent-indigo-600"
+                      />
+                      精选项目
+                    </label>
+
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-400 mb-1">GitHub / Demo 链接</label>
+                      <input
+                        type="url"
+                        value={project.links?.github || project.links?.demo || ''}
+                        onChange={e => {
+                          const val = e.target.value
+                          updateProject(i, {
+                            links: {
+                              ...(project.links || {}),
+                              ...(val.includes('github') ? { github: val } : { demo: val })
+                            }
+                          })
+                        }}
+                        placeholder="https://github.com/..."
+                        className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={addProject}
+                className="flex items-center gap-2 px-5 py-3 text-sm border border-dashed border-gray-300 dark:border-gray-600 rounded-2xl text-gray-500 dark:text-gray-400 hover:border-indigo-400 hover:text-indigo-600 w-full justify-center transition-colors"
+              >
+                <Plus size={18} /> 添加新项目
               </button>
             </div>
           )}
