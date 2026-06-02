@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { AuthProvider } from './contexts/AuthContext'
@@ -16,6 +17,12 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminArticles from './pages/admin/AdminArticles'
 import AdminArticleEdit from './pages/admin/AdminArticleEdit'
 import AdminProfile from './pages/admin/AdminProfile'
+
+const ResumeHub = lazy(() => import('./pages/resume/ResumeHub'))
+const ResumeWizard = lazy(() => import('./pages/resume/ResumeWizard'))
+const DailyNotes = lazy(() => import('./pages/resume/DailyNotes'))
+const ResumeTemplates = lazy(() => import('./pages/resume/ResumeTemplates'))
+const ResumePreview = lazy(() => import('./pages/resume/ResumePreview'))
 
 // 初始化 localStorage 种子数据
 initializeStorage()
@@ -40,6 +47,11 @@ export const router = createBrowserRouter([
       { path: 'about',            element: <About /> },
       { path: 'projects',         element: <Projects /> },
       { path: 'ai',               element: <AI /> },
+      { path: 'resume',           element: <Suspense fallback={<div>Loading...</div>}><ResumeHub /></Suspense> },
+      { path: 'resume/create',    element: <Suspense fallback={<div>Loading...</div>}><ResumeWizard /></Suspense> },
+      { path: 'resume/notes',     element: <Suspense fallback={<div>Loading...</div>}><DailyNotes /></Suspense> },
+      { path: 'resume/templates', element: <Suspense fallback={<div>Loading...</div>}><ResumeTemplates /></Suspense> },
+      { path: 'resume/preview/:id', element: <Suspense fallback={<div>Loading...</div>}><ResumePreview /></Suspense> },
     ],
   },
   {

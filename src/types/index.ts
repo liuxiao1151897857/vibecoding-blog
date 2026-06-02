@@ -184,3 +184,42 @@ export interface ArticleFilter {
   page?: number
   pageSize?: number
 }
+
+// ---- 简历模块（详见 src/types/resume.ts）---------------------
+
+export type {
+  BuildResumeFromProfileOptions,
+  DailyNote,
+  DailyNoteCategory,
+  DailyNoteFilter,
+  DailyNoteSummaryRequest,
+  DailyNoteSummaryResult,
+  Resume,
+  ResumeEducation,
+  ResumeMeta,
+  ResumePersonal,
+  ResumeProjectEntry,
+  ResumeSection,
+  ResumeSettings,
+  ResumeSkill,
+  ResumeSource,
+  ResumeSourceKind,
+  ResumeStatus,
+  ResumeTemplate,
+  ResumeTemplateLayout,
+  ResumeTemplateSection,
+  ResumeWizardSession,
+  ResumeWorkExperience,
+  WizardAnswer,
+  WizardQuestion,
+  WizardStep,
+} from './resume'
+
+export {
+  DAILY_NOTE_CATEGORY_LABELS,
+  DEFAULT_RESUME_SETTINGS,
+  DEFAULT_RESUME_TEMPLATES,
+  RESUME_STORAGE_KEYS,
+} from './resume'
+
+export { RESUME_WIZARD_QUESTIONS, RESUME_WIZARD_STEPS } from './resumeWizard'

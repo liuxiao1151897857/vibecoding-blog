@@ -13,6 +13,7 @@ export default function Navbar() {
     { to: '/', label: '首页' },
     { to: '/articles', label: '文章' },
     { to: '/projects', label: '项目' },
+    { to: '/resume', label: '简历' },
     { to: '/ai', label: 'AI' },
     { to: '/about', label: '关于' },
   ]
